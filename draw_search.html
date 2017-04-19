@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<button id="draw">draw</button>
+
+<script type="text/javascript">
+    var map,
+        startLatLng,
+        isDrawing = false,
+        poly,
+        markers = [];
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 35.628956, lng: 139.738907},
+            zoom: 14,
+            draggable: false,
+            clickableIcons: false
+        });
+
+        for (var i = 0; i < 100; i++) {
+            randomMarker();
+        }
+
+        map.addListener('mousedown', startDrawing);
+        map.addListener('mousemove', addLatLng);
+        map.addListener('mouseup', endDrawing);
+    }
+
+    function randomMarker() {
+        var lat = 35.56 + (Math.random() / 10),
+            lng = 139.69 + (Math.random() / 10),
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng(lat, lng),
+                map: map
+            });
+        markers.push(marker);
+    }
+
+    function startDrawing(event) {
+        poly = new google.maps.Polyline();
+        poly.setMap(map);
+        poly.addListener('mouseup', endDrawing);
+
+        startLatLng = event.latLng;
+        var path = poly.getPath();
+        path.push(startLatLng);
+        isDrawing = true;
+    }
+    function addLatLng(event) {
+        if (isDrawing) {
+            var path = poly.getPath();
+            path.push(event.latLng);
+        }
+    }
+    function endDrawing(event) {
+        isDrawing = false;
+        poly.getPath().push(startLatLng);
+
+        var polygon = new google.maps.Polygon({paths: poly.getPath()});
+        for (var i = 0; i < markers.length; i++) {
+            if (!google.maps.geometry.poly.containsLocation(markers[i].getPosition(), polygon)) {
+                markers[i].setMap(null);
+            }
+
+        }
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap" async defer></script>
+</body>
+</html>
