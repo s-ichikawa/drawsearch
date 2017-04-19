@@ -60,14 +60,12 @@
         poly.addListener('mouseup', endDrawing);
 
         startLatLng = event.latLng;
-        var path = poly.getPath();
-        path.push(startLatLng);
+        poly.getPath().push(startLatLng);
         isDrawing = true;
     }
     function addLatLng(event) {
         if (isDrawing) {
-            var path = poly.getPath();
-            path.push(event.latLng);
+            poly.getPath().push(event.latLng);
         }
     }
     function endDrawing(event) {
